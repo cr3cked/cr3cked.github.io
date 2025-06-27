@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lunar Giveaways</title>
+    <!-- Tailwind CSS CDN for utility classes -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Montserrat (for 100, 400, 700 for bold) -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* Custom CSS for animations and specific styles not easily done with Tailwind */
+      :root {
+        --bg-color-light: #f3f4f6; /* gray-100 */
+        --bg-color-dark: #000;
+        --text-color-light: #1f2937; /* gray-800 */
+        --text-color-dark: #fff;
+        --card-bg-light: #fff;
+        --card-bg-dark: #1a1a1a; /* Darker grey for cards in dark mode */
+        --border-color-light: #d1d5db; /* gray-300 */
+        --border-color-dark: #374151; /* gray-700 */
+      }
+
+      body {
+        overflow-x: hidden; /* Prevent horizontal scrollbars */
+        background-color: var(
+          --bg-color-dark
+        ); /* Default black background for loading */
+        font-family: "Montserrat", sans-serif; /* Apply Montserrat globally */
+        color: var(--text-color-dark); /* Default text color */
+        transition: background-color 0.3s ease, color 0.3s ease;
+      }
+
+      body.light-mode {
+        background-color: var(--bg-color-light);
+        color: var(--text-color-light);
+      }
+
+      body.light-mode .top-bar-bg {
+        background-color: #f3f4f6; /* Tailwind gray-100 */
+        color: #1f2937; /* Tailwind gray-800 */
+      }
+
+      body.light-mode #main-app-content {
+        background-color: var(--bg-color-light);
+      }
+
+      body.light-mode .card-bg {
+        background-color: var(--card-bg-light);
+      }
+
+      /* Override for text-inverse in light mode, now applying to general text where needed */
+      body.light-mode .text-inverse-dynamic {
+        color: var(--text-color-light);
+      }
+
+      /* Ensure specific elements remain black regardless of theme */
+      .text-black-override {
+        color: #000 !important; /* Force black for specific elements in both modes */
+      }
+
+      body.light-mode .border-black {
+        border-color: var(--text-color-light) !important;
+      }
+
+      body.light-mode .bg-gray-700 {
+        /* For loading bar track */
+        background-color: var(--border-color-light);
+      }
+
+      /* Keyframe animation for initial fade-in of content */
+      @keyframes contentFadeIn {
+        0% {
+          opacity: 0;
+          transform: scale(0.9);
+        }
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      /* Keyframe animation for the black overlay fade-out/fade-in (transition) */
+      @keyframes fadeOutToBlack {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+      @keyframes fadeInFromBlack {
+        from {
+          opacity: 1;
+        }
+        to {
+          opacity: 0;
+        }
+      }
+
+      /* Keyframe for welcome text fade out */
+      @keyframes welcomeFadeOut {
+        from {
+          opacity: 1;
+        }
+        to {
+          opacity: 0;
+        }
+      }
+
+      /* Apply animations to specific elements */
+      .fade-in-animation {
+        animation: contentFadeIn 2s ease-out forwards;
+      }
+      .loading-fade-out {
+        animation: contentFadeIn 0.5s reverse forwards; /* Reverse the contentFadeIn to fade out */
+      }
+      .overlay-fade-out {
+        animation: fadeOutToBlack 3s ease-in forwards; /* Longer fade to black */
+      }
+      .overlay-fade-in {
+        animation: fadeInFromBlack 0.5s ease-out forwards; /* Fade in from black to reveal new content */
+      }
+      .welcome-text-fade-out {
+        animation: welcomeFadeOut 1s ease-out forwards; /* Fade out welcome message */
+      }
+
+      /* Ensuring crescent moon SVG fills its container without distortion */
+      .crescent-moon-svg {
+        width: 100%;
+        height: auto;
+        max-width: 150px; /* Control max size of moon */
+        filter: drop-shadow(
+          0 0 10px rgba(255, 255, 255, 0.5)
+        ); /* Glow effect */
+      }
+
+      /* Styling for the background image (crescent-moon.png) */
+      .background-image-container {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 0; /* Behind other content */
+        background-image: url("crescent-moon.png"); /* Use the uploaded crescent moon image */
+        background-size: cover; /* Cover the entire container */
+        background-position: center; /* Center the image */
+        background-repeat: no-repeat; /* Do not repeat the image */
+        opacity: 0.2; /* Make it transparent */
+      }
+
+      /* Custom scrollbar for main app content */
+      .main-app-scroll-area {
+        -ms-overflow-style: none; /* IE and Edge */
+        scrollbar-width: none; /* Firefox */
+      }
+      .main-app-scroll-area::-webkit-scrollbar {
+        display: none; /* Chrome, Safari, Opera */
+      }
+
+      /* Styles for the notification modal */
+      .notification-modal {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: #333; /* Dark grey */
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        z-index: 1000; /* Ensure it's on top */
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+        text-align: center; /* Center text within modal */
+      }
+      .notification-modal.show {
+        opacity: 1;
+        visibility: visible;
+      }
+      .notification-modal .dismiss-button {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.2rem;
+        cursor: pointer;
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+        transition: background-color 0.2s ease;
+        margin-left: auto; /* Push X to the right */
+      }
+      .notification-modal .dismiss-button:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+      }
+
+      /* Button hover glow effect */
+      .button-glow:hover {
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* Default darker glow */
+      }
+      .enter-button:hover,
+      .join-button:hover {
+        box-shadow: 0 0 15px rgba(59, 130, 246, 0.6); /* Blue glow */
+        border-color: rgba(59, 130, 246, 0.6);
+      }
+      .discord-button:hover {
+        box-shadow: 0 0 15px rgba(88, 101, 242, 0.6); /* Discord purple glow */
+      }
+      .settings-button:hover {
+        box-shadow: 0 0 15px rgba(255, 255, 255, 0.6); /* White glow */
+      }
+
+      /* Settings Modal Styling */
+      .settings-modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 100;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+      }
+      .settings-modal-overlay.show {
+        opacity: 1;
+        visibility: visible;
+      }
+      .settings-modal-content {
+        background-color: var(--card-bg-dark); /* Default dark mode */
+        color: var(--text-color-dark);
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        width: 90%;
+        max-width: 500px;
+        position: relative;
+        transition: background-color 0.3s ease, color 0.3s ease;
+      }
+      body.light-mode .settings-modal-content {
+        background-color: var(--card-bg-light);
+        color: var(--text-color-light);
+      }
+
+      /* Toggle Switch Styling */
+      .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 40px;
+        height: 20px;
+        margin-right: 10px;
+      }
+
+      .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+
+      .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: 0.4s;
+        border-radius: 20px;
+      }
+
+      .slider:before {
+        position: absolute;
+        content: "";
+        height: 16px;
+        width: 16px;
+        left: 2px;
+        bottom: 2px;
+        background-color: white;
+        transition: 0.4s;
+        border-radius: 50%;
+      }
+
+      input:checked + .slider {
+        background-color: #4caf50; /* Green when checked */
+      }
+
+      input:focus + .slider {
+        box-shadow: 0 0 1px #4caf50;
+      }
+
+      input:checked + .slider:before {
+        transform: translateX(20px);
+      }
+    </style>
+  </head>
+  <body
+    class="bg-black flex items-center justify-center min-h-screen relative overflow-hidden font-mono"
+  >
+    <!-- Transparent Background Image Container -->
+    <div class="background-image-container">
+      <!-- The crescent-moon.png is set as a background-image in CSS -->
+    </div>
+
+    <!-- Main Content Container (Loading Screen) -->
+    <div
+      id="content-wrapper"
+      class="relative z-10 text-center flex flex-col items-center justify-center p-4"
+    >
+      <!-- Crescent Moon SVG -->
+      <svg
+        id="crescent-moon"
+        class="crescent-moon-svg text-white opacity-0 fade-in-animation mb-4"
+        style="animation-delay: 0.5s"
+        viewBox="0 0 100 100"
+        fill="currentColor"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <!-- More rounded crescent moon path facing left -->
+        <path d="M 50 10 A 40 40 0 0 0 50 90 A 30 30 0 0 1 50 10 Z" />
+      </svg>
+
+      <!-- "Lunar Giveaways" Text -->
+      <h1
+        id="main-text"
+        class="text-white text-6xl md:text-8xl lg:text-9xl font-thin opacity-0 fade-in-animation mb-4"
+        style="font-family: 'Montserrat Thin', sans-serif; animation-delay: 0s"
+      >
+        Lunar Giveaways
+      </h1>
+
+      <!-- Version Text -->
+      <p
+        id="version-text"
+        class="text-gray-300 text-sm md:text-md opacity-0 fade-in-animation mb-8"
+        style="
+          font-family: 'Montserrat Thin', sans-serif;
+          animation-delay: 0.2s;
+        "
+      >
+        <strong class="italic">v.0j</strong>
+      </p>
+
+      <!-- Loading Bar Container -->
+      <div
+        class="w-full max-w-sm bg-gray-700 rounded-full h-2.5 md:h-3.5 mt-8 overflow-hidden relative"
+      >
+        <div
+          id="loading-bar"
+          class="bg-gradient-to-r from-blue-400 to-purple-600 h-full rounded-full transition-all duration-150 ease-in-out"
+          style="width: 0%"
+        ></div>
+        <span
+          id="loading-percentage"
+          class="absolute inset-0 flex items-center justify-center text-xs font-semibold text-white"
+          >0%</span
+        >
+      </div>
+    </div>
+
+    <!-- Black Overlay for transition (initially hidden) -->
+    <div
+      id="black-overlay"
+      class="absolute inset-0 bg-black opacity-0 z-20 pointer-events-none"
+    ></div>
+
+    <!-- Main Application Content (Initially hidden) -->
+    <div
+      id="main-app-content"
+      class="absolute inset-0 hidden flex flex-col min-h-screen bg-gray-100 overflow-y-auto main-app-scroll-area"
+    >
+      <!-- Top bar -->
+      <header
+        class="bg-black top-bar-bg text-white p-4 shadow-md w-full sticky top-0 z-30 flex items-center justify-between"
+      >
+        <!-- Settings Icon -->
+        <button
+          id="settings-button"
+          class="settings-button bg-gray-800 p-2 rounded-full transition-shadow duration-300"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-6 w-6 text-white"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+            />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+            />
+          </svg>
+        </button>
+
+        <h2
+          class="font-bold text-xl text-center flex-grow"
+          style="font-family: 'Montserrat', sans-serif"
+        >
+          Lunar Giveaways
+        </h2>
+
+        <div class="flex items-center gap-4">
+          <span class="text-sm font-semibold">Giveaway Status: ONLINE 🟢</span>
+          <!-- Discord Logo -->
+          <button
+            id="discord-button"
+            class="discord-button bg-gray-800 p-2 rounded-full transition-shadow duration-300"
+          >
+            <img
+              src="https://img.freepik.com/premium-psd/discord-icon-isolated-white-background-social-media-app-round-button-logo-sign-symbol_989822-4749.jpg?w=360"
+              alt="Discord"
+              class="w-8 h-8 rounded-full"
+            />
+          </button>
+        </div>
+      </header>
+
+      <!-- Welcome Message -->
+      <div
+        id="welcome-message"
+        class="flex-shrink-0 flex items-center justify-center text-gray-800 text-2xl p-8 mb-4 text-inverse-dynamic"
+      >
+        <p class="font-bold">Welcome to our giveaways!</p>
+      </div>
+
+      <!-- Private Servers Section -->
+      <section class="p-4 md:p-8">
+        <div class="flex items-center justify-center mb-6 gap-4">
+          <h3 class="text-3xl font-bold text-black-override">
+            Private Servers
+          </h3>
+          <div class="relative">
+            <select
+              id="sort-servers-dropdown"
+              class="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+            >
+              <option value="default">Default</option>
+              <option value="lowest-to-highest">
+                Lowest to Highest Players
+              </option>
+              <option value="highest-to-lowest">
+                Highest to Lowest Players
+              </option>
+            </select>
+            <div
+              class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700"
+            >
+              <svg
+                class="fill-current h-4 w-4"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"
+                />
+              </svg>
+            </div>
+          </div>
+        </div>
+        <div
+          id="private-servers-grid"
+          class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 justify-items-center"
+        >
+          <!-- Private Server items will be dynamically inserted here by JavaScript -->
+        </div>
+      </section>
+
+      <!-- Separator Line -->
+      <div class="w-full px-4 md:px-8 my-8">
+        <hr class="border-t-2 border-gray-300" />
+      </div>
+
+      <!-- Giveaways Section -->
+      <section class="p-4 md:p-8 flex-grow">
+        <h3 class="text-3xl font-bold text-black-override mb-6 text-center">
+          Giveaways
+        </h3>
+        <div
+          id="giveaways-grid"
+          class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 justify-items-center"
+        >
+          <!-- Giveaway items will be dynamically inserted here by JavaScript -->
+        </div>
+      </section>
+    </div>
+
+    <!-- Notification Modal -->
+    <div id="notification-modal" class="notification-modal">
+      <p id="notification-message"></p>
+      <button id="dismiss-notification" class="dismiss-button" title="Dismiss">
+        X
+      </button>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal-overlay" class="settings-modal-overlay">
+      <div class="settings-modal-content">
+        <button
+          id="close-settings-modal"
+          class="absolute top-4 right-4 text-white text-2xl font-bold p-1 rounded-full transition-colors duration-200 hover:bg-gray-700 hover:text-white"
+          title="Close"
+        >
+          X
+        </button>
+        <h3 class="text-2xl font-bold mb-6 text-center text-inverse-dynamic">
+          Settings
+        </h3>
+
+        <div class="flex items-center justify-between mb-4">
+          <label
+            for="regional-servers-toggle"
+            class="text-lg text-inverse-dynamic"
+            >Regional Servers Only</label
+          >
+          <label class="toggle-switch">
+            <input type="checkbox" id="regional-servers-toggle" />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="flex items-center justify-between mb-4">
+          <label
+            for="ignore-full-servers-toggle"
+            class="text-lg text-inverse-dynamic"
+            >Ignore Full Servers</label
+          >
+          <label class="toggle-switch">
+            <input type="checkbox" id="ignore-full-servers-toggle" />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="flex items-center justify-between mb-4">
+          <label for="dark-mode-toggle" class="text-lg text-inverse-dynamic"
+            >Dark Mode</label
+          >
+          <label class="toggle-switch">
+            <input type="checkbox" id="dark-mode-toggle" checked />
+            <!-- Checked by default -->
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // DOM Elements
+      const mainText = document.getElementById("main-text");
+      const versionText = document.getElementById("version-text");
+      const crescentMoon = document.getElementById("crescent-moon");
+      const loadingBar = document.getElementById("loading-bar");
+      const loadingPercentage = document.getElementById("loading-percentage");
+      const contentWrapper = document.getElementById("content-wrapper");
+      const blackOverlay = document.getElementById("black-overlay");
+      const mainAppContent = document.getElementById("main-app-content");
+      const welcomeMessage = document.getElementById("welcome-message");
+      const giveawaysGrid = document.getElementById("giveaways-grid");
+      const privateServersGrid = document.getElementById(
+        "private-servers-grid"
+      );
+      const notificationModal = document.getElementById("notification-modal");
+      const notificationMessage = document.getElementById(
+        "notification-message"
+      );
+      const dismissNotificationButton = document.getElementById(
+        "dismiss-notification"
+      );
+      const discordButton = document.getElementById("discord-button");
+      const settingsButton = document.getElementById("settings-button");
+      const settingsModalOverlay = document.getElementById(
+        "settings-modal-overlay"
+      );
+      const closeSettingsModalButton = document.getElementById(
+        "close-settings-modal"
+      );
+      const regionalServersToggle = document.getElementById(
+        "regional-servers-toggle"
+      );
+      const ignoreFullServersToggle = document.getElementById(
+        "ignore-full-servers-toggle"
+      );
+      const darkModeToggle = document.getElementById("dark-mode-toggle");
+      const sortServersDropdown = document.getElementById(
+        "sort-servers-dropdown"
+      );
+
+      // Loading Screen Variables
+      let currentProgress = 0;
+      const totalDuration = 6000; // 6 seconds in milliseconds
+      const updateInterval = 100; // Update every 100ms for smoother animation but still allowing "jumps"
+      let loadingIntervalId;
+
+      // Giveaway Data
+      const giveawayNames = [
+        "Raccoon",
+        "Dragonfly",
+        "Cooked Owl",
+        "Chicken Zombie",
+        "Disco Bee",
+        "Queen Bee",
+        "Mimic Octopus",
+      ];
+      const giveawayImageUrl =
+        "https://upload.wikimedia.org/wikipedia/en/thumb/b/b6/Grow_a_Garden_thumbnail.webp/250px-Grow_a_Garden_thumbnail.webp.png";
+      const totalGiveaways = 32;
+      const localStorageEntriesKey = "lunarGiveaways_entries"; // Key for local storage
+      const localStorageEnteredGiveawaysKey = "lunarGiveaways_entered"; // Key for one-time entry
+
+      // Private Server Data
+      const privateServerImageUrl =
+        "https://i.ytimg.com/vi/zppfzBsbkX8/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLCWwH4N-XWTJ4s2cOQjwN_qxwo0vg";
+      const privateServerLink =
+        "https://www.robiox.com.tg/games/126884695634066/Grow-a-Garden?privateServerLinkCode=833156744510461450436184855814";
+      const discordLink = "https://discord.gg/jSCHd6APKQ";
+
+      // Country Data for Private Servers (Flags and IP ranges)
+      const countryData = {
+        USA: {
+          flag: "https://www.custom-windsocks.com/cdn/shop/files/Flag-United-States-of-America_2048x.webp?v=1740073956",
+          ipRange: "68",
+        },
+        Canada: {
+          flag: "https://upload.wikimedia.org/wikipedia/commons/d/d9/Flag_of_Canada_%28Pantone%29.svg",
+          ipRange: "184",
+        },
+        UK: {
+          flag: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Flag_of_the_United_Kingdom_%281-2%29.svg/960px-Flag_of_the_United_Kingdom_%281-2%29.svg.png",
+          ipRange: "82",
+        },
+        Russia: {
+          flag: "https://upload.wikimedia.org/wikipedia/en/f/f3/Flag_of_Russia.svg",
+          ipRange: "95",
+        },
+        India: {
+          flag: "https://upload.wikimedia.org/wikipedia/en/4/41/Flag_of_India.svg",
+          ipRange: "103",
+        },
+      };
+
+      let allServersData = []; // To store all generated server data
+      let userCountryCode = null; // To store detected user country code
+
+      // --- Settings State (from localStorage) ---
+      const settings = {
+        regionalServersOnly:
+          JSON.parse(localStorage.getItem("regionalServersOnly")) || false,
+        ignoreFullServers:
+          JSON.parse(localStorage.getItem("ignoreFullServers")) || false,
+        darkMode: JSON.parse(localStorage.getItem("darkMode")) !== false, // Default to true if not set
+      };
+
+      // --- Utility Functions ---
+
+      // Function to generate a random number within a range
+      function getRandomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+      }
+
+      // Function to generate a fake IP address based on country, ensuring uniqueness
+      const generatedIpsSet = new Set(); // Global set to ensure IPs are unique across all servers
+      function generateUniqueFakeIp(country) {
+        const range = countryData[country].ipRange;
+        let newIp;
+        let isUnique = false;
+        let attempts = 0;
+        const maxAttempts = 100;
+
+        while (!isUnique && attempts < maxAttempts) {
+          newIp = `${range}.${getRandomInt(0, 255)}.${getRandomInt(
+            0,
+            255
+          )}.${getRandomInt(1, 254)}`;
+          if (!generatedIpsSet.has(newIp)) {
+            isUnique = true;
+          }
+          attempts++;
+        }
+        if (!isUnique) {
+          console.warn(
+            "Could not generate a unique IP after several attempts for country:",
+            country
+          );
+          newIp = `${range}.0.0.${(Date.now() % 254) + 1}-${getRandomInt(
+            0,
+            999
+          )}`; // Fallback with timestamp for better uniqueness
+        }
+        generatedIpsSet.add(newIp);
+        return newIp;
+      }
+
+      // Function to load entries from local storage or initialize
+      function loadGiveawayEntries() {
+        let entries = JSON.parse(localStorage.getItem(localStorageEntriesKey));
+        if (!entries) {
+          entries = {};
+          for (let i = 0; i < totalGiveaways; i++) {
+            entries[i] = getRandomInt(100, 1000); // Initial random entries
+          }
+          localStorage.setItem(localStorageEntriesKey, JSON.stringify(entries));
+        }
+        return entries;
+      }
+
+      // Function to save entries to local storage
+      function saveGiveawayEntries(entries) {
+        localStorage.setItem(localStorageEntriesKey, JSON.stringify(entries));
+      }
+
+      // Function to load entered giveaway status from local storage
+      function loadEnteredGiveaways() {
+        let entered = JSON.parse(
+          localStorage.getItem(localStorageEnteredGiveawaysKey)
+        );
+        if (!entered) {
+          entered = Array(totalGiveaways).fill(false); // Initialize all as not entered
+          localStorage.setItem(
+            localStorageEnteredGiveawaysKey,
+            JSON.stringify(entered)
+          );
+        }
+        return entered;
+      }
+
+      // Function to save entered giveaway status to local storage
+      function saveEnteredGiveaways(entered) {
+        localStorage.setItem(
+          localStorageEnteredGiveawaysKey,
+          JSON.stringify(entered)
+        );
+      }
+
+      // --- Loading Screen Logic ---
+
+      // Function to update the loading bar
+      function updateLoadingBar() {
+        const maxJump = Math.min(10, 100 - currentProgress); // Max jump is 10%, or whatever is left
+        const minJump = Math.min(1, 100 - currentProgress); // Min jump is 1%, or whatever is left
+
+        let jump;
+        if (Math.random() > 0.7) {
+          // 30% chance for a bigger jump
+          jump = Math.floor(Math.random() * (maxJump - minJump + 1)) + minJump;
+        } else {
+          // 70% chance for a smaller jump
+          jump =
+            Math.floor(
+              Math.random() * (Math.min(3, minJump + 2) - minJump + 1)
+            ) + minJump;
+        }
+
+        currentProgress += jump;
+
+        if (currentProgress >= 100) {
+          currentProgress = 100;
+          clearInterval(loadingIntervalId); // Stop the loading bar animation
+          setTimeout(finishLoading, 500); // Give a small delay after 100% at 100%
+        }
+
+        loadingBar.style.width = currentProgress + "%";
+        loadingPercentage.textContent = currentProgress + "%";
+      }
+
+      // Function to handle the transition after loading is complete
+      function finishLoading() {
+        // Start fading out the loading screen content
+        contentWrapper.classList.add("loading-fade-out");
+
+        // Make overlay visible and start its fade-to-black animation
+        blackOverlay.classList.remove("opacity-0");
+        blackOverlay.classList.add("overlay-fade-out");
+        blackOverlay.classList.remove("pointer-events-none"); // Allow overlay to block events during transition
+
+        // After the fade-out animation completes (3 seconds for overlay-fade-out)
+        setTimeout(() => {
+          contentWrapper.style.display = "none"; // Completely hide loading screen elements
+          // Remove the fade-out class from overlay and add fade-in (to reveal app content)
+          blackOverlay.classList.remove("overlay-fade-out");
+          blackOverlay.classList.add("overlay-fade-in");
+
+          // Show the main application content
+          mainAppContent.classList.remove("hidden");
+
+          // After the overlay fades back in (effectively becoming transparent)
+          setTimeout(() => {
+            blackOverlay.style.display = "none"; // Completely hide the overlay
+            blackOverlay.classList.add("pointer-events-none"); // Re-enable pointer events for the app
+
+            // Start fading out the welcome message after it becomes visible
+            setTimeout(() => {
+              welcomeMessage.classList.add("welcome-text-fade-out");
+              setTimeout(() => {
+                welcomeMessage.style.display = "none"; // Hide welcome message after fade-out
+              }, 1000); // Duration of welcome fade out
+            }, 1000); // Delay before welcome message starts fading
+            console.log("Loading complete, main app content visible.");
+          }, 500); // Duration of overlay-fade-in animation
+        }, 3000); // Duration of overlay-fade-out animation
+      }
+
+      // --- Main Application Content Generation ---
+
+      // Generate Giveaway Items
+      function createGiveawayCards() {
+        const entries = loadGiveawayEntries();
+        const enteredGiveaways = loadEnteredGiveaways();
+        giveawaysGrid.innerHTML = ""; // Clear existing content
+
+        for (let i = 0; i < totalGiveaways; i++) {
+          const giveawayName = giveawayNames[i % giveawayNames.length]; // Cycle through names
+          const currentEntries = entries[i];
+          const isEntered = enteredGiveaways[i];
+
+          const card = document.createElement("div");
+          card.className = `bg-white rounded-lg shadow-lg p-4 flex flex-col items-center justify-between text-center max-w-xs w-full card-bg`;
+          card.innerHTML = `
+                    <img src="${giveawayImageUrl}" alt="${giveawayName}" class="w-24 h-24 rounded-full mb-4 object-cover border border-gray-200">
+                    <p class="text-black font-bold text-lg mb-2 text-inverse-dynamic" style="font-family: 'Montserrat', sans-serif;">${giveawayName}</p>
+                    <p class="text-gray-700 text-sm mb-4 text-inverse-dynamic">Entries: <span id="entries-${i}" class="font-semibold">${currentEntries}</span></p>
+                    <button class="enter-button bg-white text-black font-semibold py-2 px-4 rounded-full border border-black transition-colors duration-200 button-glow ${
+                      isEntered
+                        ? "opacity-50 cursor-not-allowed"
+                        : "hover:bg-gray-100"
+                    }" data-index="${i}" ${isEntered ? "disabled" : ""}>${
+            isEntered ? "Entered" : "Enter"
+          }</button>
+                `;
+          giveawaysGrid.appendChild(card);
+        }
+
+        // Add event listeners to "Enter" buttons
+        document.querySelectorAll(".enter-button").forEach((button) => {
+          button.addEventListener("click", (event) => {
+            const index = parseInt(event.target.dataset.index);
+            let currentEntries = loadGiveawayEntries();
+            let entered = loadEnteredGiveaways();
+
+            if (!entered[index]) {
+              // Only allow entry if not already entered
+              currentEntries[index]++;
+              entered[index] = true; // Mark as entered
+              saveGiveawayEntries(currentEntries);
+              saveEnteredGiveaways(entered);
+
+              document.getElementById(`entries-${index}`).textContent =
+                currentEntries[index];
+              event.target.textContent = "Entered";
+              event.target.disabled = true;
+              event.target.classList.add("opacity-50", "cursor-not-allowed");
+              event.target.classList.remove("hover:bg-gray-100"); // Remove hover effect
+            }
+          });
+        });
+      }
+
+      // Initial generation of all server data (done once)
+      function generateAllServerData() {
+        const servers = [];
+        const totalRequiredServers = 45;
+        let currentServerCount = 0;
+
+        const countryList = Object.keys(countryData);
+
+        while (currentServerCount < totalRequiredServers) {
+          // Randomly pick a country
+          const randomCountryIndex = getRandomInt(0, countryList.length - 1);
+          const country = countryList[randomCountryIndex];
+
+          servers.push({
+            country: country,
+            players: getRandomInt(1, 4), // Players 1-4 (no 5/5 servers)
+            ipAddress: generateUniqueFakeIp(country),
+          });
+          currentServerCount++;
+        }
+        allServersData = servers; // Store the generated data
+      }
+
+      // Render Private Server Cards based on filtered/sorted data
+      function renderPrivateServerCards(serversToRender) {
+        privateServersGrid.innerHTML = ""; // Clear existing content
+
+        serversToRender.forEach((server, i) => {
+          const flagUrl = countryData[server.country].flag;
+
+          const card = document.createElement("div");
+          card.className = `bg-white rounded-lg shadow-lg p-4 flex flex-col items-center justify-between text-center max-w-xs w-full card-bg`;
+          card.innerHTML = `
+                    <img src="${privateServerImageUrl}" alt="Private Server" class="w-24 h-24 rounded-full mb-4 object-cover border border-gray-200">
+                    <p class="text-black font-bold text-lg mb-2 text-inverse-dynamic" style="font-family: 'Montserrat', sans-serif;">Old Candy Blossom Server</p>
+                    <div class="flex items-center text-gray-700 text-sm mb-2 text-inverse-dynamic">
+                        <img src="${flagUrl}" alt="${server.country} Flag" class="w-4 h-auto mr-2 rounded-sm">
+                        <span>${server.ipAddress}</span>
+                    </div>
+                    <p class="text-gray-700 text-sm text-inverse-dynamic mb-1">Players: <span class="font-semibold">${server.players}/5</span></p>
+                    <p class="text-green-500 text-xs mb-4">Online 🟢</p>
+                    <button class="join-button bg-white text-black font-semibold py-2 px-4 rounded-full border border-black hover:bg-gray-100 transition-colors duration-200 button-glow" data-link="${privateServerLink}">Join Now</button>
+                `;
+          privateServersGrid.appendChild(card);
+        });
+
+        // Add event listeners to "Join Now" buttons
+        document.querySelectorAll(".join-button").forEach((button) => {
+          button.addEventListener("click", (event) => {
+            const link = event.target.dataset.link;
+            showNotification(link, false); // false for not opening in new tab
+          });
+        });
+      }
+
+      // --- Filtering and Sorting Logic ---
+
+      // Function to get user's location via third-party API
+      async function fetchUserLocation() {
+        try {
+          const response = await fetch("https://ipapi.co/json/");
+          const data = await response.json();
+          userCountryCode = data.country_code;
+          console.log("Detected user country code:", userCountryCode);
+          applyServerFiltersAndSort(); // Re-render servers after getting location
+        } catch (error) {
+          console.error("Error fetching user location:", error);
+          userCountryCode = null; // Reset if error
+        }
+      }
+
+      // Map user country to a relevant server country
+      function getClosestServerRegion(userCountry) {
+        // This is a simplified mapping. More complex logic might involve geo-coordinates.
+        switch (userCountry) {
+          case "MX": // Mexico
+          case "US": // United States
+            return "USA";
+          case "CA": // Canada
+            return "Canada";
+          case "GB": // United Kingdom
+          case "IE": // Ireland (close to UK)
+            return "UK";
+          case "RU": // Russia
+            return "Russia";
+          case "IN": // India
+            return "India";
+          default:
+            // If country not explicitly mapped, try to match by exact country code or default
+            const exactMatch = Object.keys(countryData).find(
+              (key) => key.toUpperCase() === userCountry.toUpperCase()
+            );
+            return exactMatch || null; // Return null if no direct or mapped match
+        }
+      }
+
+      function applyServerFiltersAndSort() {
+        let filteredServers = [...allServersData]; // Start with a copy of all data
+
+        // Apply "Regional Servers Only" filter
+        if (settings.regionalServersOnly && userCountryCode) {
+          const closestRegion = getClosestServerRegion(userCountryCode);
+          if (closestRegion) {
+            filteredServers = filteredServers.filter(
+              (server) => server.country === closestRegion
+            );
+          } else {
+            // If user's region cannot be mapped to any available server region, show none or a message
+            filteredServers = [];
+            console.warn(
+              "User region not mapped to any available server region, showing no regional servers."
+            );
+          }
+        }
+
+        // Apply "Ignore Full Servers" filter
+        if (settings.ignoreFullServers) {
+          filteredServers = filteredServers.filter(
+            (server) => server.players < 5
+          ); // Max players is 5, so filter out 5/5
+        }
+
+        // Apply sorting
+        const sortOrder = sortServersDropdown.value;
+        if (sortOrder === "lowest-to-highest") {
+          filteredServers.sort((a, b) => a.players - b.players);
+        } else if (sortOrder === "highest-to-lowest") {
+          filteredServers.sort((a, b) => b.players - a.players);
+        }
+        // 'default' implies no specific sort, so order is retained from initial generation/filtering
+
+        renderPrivateServerCards(filteredServers);
+      }
+
+      // --- Settings Modal Logic ---
+
+      function openSettingsModal() {
+        settingsModalOverlay.classList.add("show");
+        // Ensure settings toggles reflect current state when opened
+        regionalServersToggle.checked = settings.regionalServersOnly;
+        ignoreFullServersToggle.checked = settings.ignoreFullServers;
+        darkModeToggle.checked = settings.darkMode;
+      }
+
+      function closeSettingsModal() {
+        settingsModalOverlay.classList.remove("show");
+      }
+
+      function saveSettings() {
+        localStorage.setItem(
+          "regionalServersOnly",
+          JSON.stringify(settings.regionalServersOnly)
+        );
+        localStorage.setItem(
+          "ignoreFullServers",
+          JSON.stringify(settings.ignoreFullServers)
+        );
+        localStorage.setItem("darkMode", JSON.stringify(settings.darkMode));
+      }
+
+      function updateDarkModeClasses() {
+        if (settings.darkMode) {
+          document.body.classList.remove("light-mode");
+        } else {
+          document.body.classList.add("light-mode");
+        }
+      }
+
+      // Initialize settings from local storage and apply
+      function initializeSettings() {
+        updateDarkModeClasses(); // Apply theme immediately on load
+
+        // Attach listeners after initial state is set
+        regionalServersToggle.addEventListener("change", () => {
+          settings.regionalServersOnly = regionalServersToggle.checked;
+          saveSettings();
+          applyServerFiltersAndSort(); // Re-filter when this setting changes
+        });
+
+        ignoreFullServersToggle.addEventListener("change", () => {
+          settings.ignoreFullServers = ignoreFullServersToggle.checked;
+          saveSettings();
+          applyServerFiltersAndSort(); // Re-filter when this setting changes
+        });
+
+        darkModeToggle.addEventListener("change", () => {
+          settings.darkMode = darkModeToggle.checked;
+          saveSettings();
+          updateDarkModeClasses(); // Apply theme when this setting changes
+        });
+      }
+
+      // Event Listeners for Settings
+      settingsButton.addEventListener("click", openSettingsModal);
+      closeSettingsModalButton.addEventListener("click", closeSettingsModal);
+
+      sortServersDropdown.addEventListener("change", applyServerFiltersAndSort);
+
+      // --- Notification Modal Logic ---
+
+      let redirectTimeoutId; // To store the timeout ID for redirection
+
+      function showNotification(link, openInNewTab) {
+        let countdown = 5;
+        let message = "";
+        let targetLink = link; // Store the link
+
+        if (openInNewTab) {
+          message = `Redirecting you to our official channels in <span id="countdown">${countdown}</span> seconds.. (opens in a new tab)`;
+        } else {
+          message = `Successfully joined, redirecting in <span id="countdown">${countdown}</span> seconds..`;
+        }
+
+        notificationMessage.innerHTML = message;
+        notificationModal.classList.add("show");
+
+        const countdownElement = document.getElementById("countdown");
+
+        // Clear any existing countdown interval to prevent multiple running
+        if (redirectTimeoutId) clearTimeout(redirectTimeoutId);
+
+        const countdownInterval = setInterval(() => {
+          countdown--;
+          if (countdownElement) {
+            // Check if element still exists (in case modal was dismissed)
+            countdownElement.textContent = countdown;
+          }
+          if (countdown <= 0) {
+            clearInterval(countdownInterval);
+            if (openInNewTab) {
+              window.open(targetLink, "_blank");
+            } else {
+              window.location.href = targetLink;
+            }
+            notificationModal.classList.remove("show"); // Hide notification once redirect happens
+          }
+        }, 1000);
+
+        // Set the final redirect timeout
+        redirectTimeoutId = setTimeout(() => {
+          clearInterval(countdownInterval); // Ensure countdown interval is cleared
+          if (openInNewTab) {
+            window.open(targetLink, "_blank");
+          } else {
+            window.location.href = targetLink;
+          }
+          notificationModal.classList.remove("show"); // Hide notification once redirect happens
+        }, 5000); // 5 seconds for redirection
+      }
+
+      // Dismiss notification button functionality
+      dismissNotificationButton.addEventListener("click", () => {
+        notificationModal.classList.remove("show");
+        // If the user dismisses, we still want the redirect to happen if it's for a private server/social link
+        // The redirectTimeoutId will handle the actual redirection after its delay.
+      });
+
+      // Discord button click listener
+      discordButton.addEventListener("click", () => {
+        showNotification(discordLink, true); // true for opening in new tab
+      });
+
+      // --- Initialize App ---
+      window.onload = function () {
+        // Initialize settings and apply theme
+        initializeSettings();
+
+        // Start the loading bar animation
+        loadingIntervalId = setInterval(updateLoadingBar, updateInterval);
+
+        // Generate content for main app once loaded (even if not yet visible)
+        generateAllServerData(); // Generate all 45 servers once
+        applyServerFiltersAndSort(); // Apply initial filters/sort and render
+        createGiveawayCards();
+        fetchUserLocation(); // Fetch user location for regional servers, asynchronously
+      };
+    </script>
+  </body>
+</html>
