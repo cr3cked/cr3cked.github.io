@@ -33,7 +33,7 @@
             -webkit-appearance: none;
             -moz-appearance: none;
             appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3Csvg%3E");
             background-position: right 0.5rem center;
             background-repeat: no-repeat;
             background-size: 1.5em 1.5em;
@@ -57,6 +57,41 @@
         .content-section.active {
             display: block;
         }
+        /* Overlay for loading animation */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            color: white;
+            font-size: 1.5rem;
+            text-align: center;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+        .loading-bar-container {
+            width: 80%;
+            max-width: 400px;
+            background-color: #1f2937;
+            border-radius: 9999px;
+            height: 1rem;
+            margin-top: 1rem;
+            overflow: hidden;
+        }
+        .loading-bar {
+            height: 100%;
+            width: 0%;
+            background-color: #3b82f6; /* blue-500 */
+            border-radius: 9999px;
+            transition: width 0.1s linear;
+        }
     </style>
 </head>
 <body class="text-gray-300">
@@ -74,17 +109,14 @@
             </div>
             <!-- Navigation Links -->
             <nav class="flex-1 px-4 py-6 space-y-2">
-                <a href="#" data-section="dashboard" class="nav-link flex items-center px-4 py-2.5 text-gray-300 rounded-lg bg-gray-700/50">
-                    <svg class="h-5 w-5 mr-3" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21.21 15.89A10 10 0 1 1 8 2.83" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 12A10 10 0 0 0 12 2v10z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    <span>Dashboard</span>
-                </a>
-                <a href="#" data-section="games" class="nav-link flex items-center px-4 py-2.5 text-gray-300 hover:bg-gray-700/50 rounded-lg transition-colors">
+                <a href="#" data-section="games" class="nav-link flex items-center px-4 py-2.5 text-gray-300 rounded-lg bg-gray-700/50">
                     <svg class="h-5 w-5 mr-3" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 3h18v18H3zM15 9l-3 3-3-3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     <span>Games</span>
                 </a>
-                <a href="#" data-section="download" class="nav-link flex items-center px-4 py-2.5 text-gray-300 hover:bg-gray-700/50 rounded-lg transition-colors">
-                    <svg class="h-5 w-5 mr-3" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    <span>Download</span>
+                <a href="#" data-section="booter" class="nav-link flex items-center px-4 py-2.5 text-gray-300 hover:bg-gray-700/50 rounded-lg transition-colors">
+                    <!-- Lucide Cable icon for 'Booter' -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-cable h-5 w-5 mr-3"><path d="M7 14s-2 2-2 3 1 3 3 3 3-2 3-2"/><path d="M10.5 9.5s2-2 3-2 3 1 3 3-2 2-2 3"/><path d="M12 12s-2 2-2 3 1 3 3 3 3-2 3-2"/><path d="M14 10s-2 2-2 3 1 3 3 3 3-2 3-2"/></svg>
+                    <span>Booter</span>
                 </a>
                 <a href="#" data-section="settings" class="nav-link flex items-center px-4 py-2.5 text-gray-300 hover:bg-gray-700/50 rounded-lg transition-colors">
                     <svg class="h-5 w-5 mr-3" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 0 2l-.15.08a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1 0-2l.15.08a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2zM12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -97,134 +129,308 @@
         <main class="flex-1 flex flex-col">
             <!-- Header -->
             <header class="h-20 bg-gray-900/70 backdrop-blur-sm border-b border-gray-800 flex items-center justify-between px-8">
-                <h1 id="page-title" class="text-2xl font-semibold text-gray-100">Dashboard</h1>
+                <h1 id="page-title" class="text-2xl font-semibold text-gray-100">Games</h1>
                 <div class="flex items-center space-x-4">
                     <span class="text-sm">Status: <span class="text-green-400 font-semibold">Online</span></span>
                     <div class="w-px h-6 bg-gray-700"></div>
-                    <span class="font-semibold text-gray-100">User_7C2B</span>
+                    <span id="user-id-display" class="font-semibold text-gray-100">Loading User...</span>
                 </div>
             </header>
             
             <!-- Content Sections -->
             <div class="flex-1 p-8 overflow-y-auto">
-                <!-- Dashboard Section -->
-                <section id="dashboard" class="content-section active">
-                    <h2 class="text-3xl font-bold text-white mb-6">Welcome back!</h2>
-                    <p class="text-lg text-gray-400">Select a game from the 'Games' tab to get started or visit the 'Download' section.</p>
-                </section>
-
                 <!-- Games Section -->
-                <section id="games" class="content-section">
+                <section id="games" class="content-section active">
                     <div class="flex flex-col items-center">
-                         <div class="relative w-full max-w-sm">
-                            <button id="dropdown-button" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-lg text-gray-300 flex justify-between items-center focus:outline-none focus:ring-2 focus:ring-blue-500 dropdown-arrow">
-                                <span id="dropdown-label">Select your game</span>
-                            </button>
-                            <div id="dropdown-options" class="absolute mt-2 w-full bg-gray-800 border border-gray-700 rounded-lg overflow-hidden hidden z-20">
-                                <ul>
-                                    <li data-value="gtd" class="px-4 py-3 text-lg text-gray-300 hover:bg-gray-700 cursor-pointer">
-                                        Garden Tower Defense 🌻
-                                    </li>
-                                </ul>
+                           <div class="relative w-full max-w-sm">
+                                <button id="dropdown-button" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-lg text-gray-300 flex justify-between items-center focus:outline-none focus:ring-2 focus:ring-blue-500 dropdown-arrow">
+                                    <span id="dropdown-label">Select your game</span>
+                                </button>
+                                <div id="dropdown-options" class="absolute mt-2 w-full bg-gray-800 border border-gray-700 rounded-lg overflow-hidden hidden z-20">
+                                    <ul>
+                                        <li data-value="gtd" class="px-4 py-3 text-lg text-gray-300 hover:bg-gray-700 cursor-pointer">
+                                            Garden Tower Defense 🌻
+                                        </li>
+                                    </ul>
+                                </div>
                             </div>
-                        </div>
 
-                        <!-- Game Content (hidden until game is selected) -->
-                        <div id="game-content" class="mt-8 text-center w-full max-w-md hidden">
-                             <div id="welcome-message" class="text-lg text-gray-300 bg-gray-800/50 border border-gray-700 rounded-lg p-6">
-                                <p class="mb-4">
-                                    Welcome to Lunar Macros! To get started, go to the gamepage 
-                                    <a href="https://www.robiox.com.tg/games/108533757090220/AFK-Garden-Tower-Defense?privateServerLinkCode=833156744510461450436184855814" target="_blank" rel="noopener noreferrer" class="text-blue-400 underline hover:text-blue-300 transition-colors">
-                                        here
-                                    </a>.
-                                </p>
-                                <a href="https://www.robiox.com.tg/games/108533757090220/AFK-Garden-Tower-Defense?privateServerLinkCode=833156744510461450436184855814" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-white transition-colors">
-                                    Click here to go to Garden Tower Defense 🌻
-                                </a>
+                            <!-- Game Content (hidden until game is selected) -->
+                            <div id="game-content" class="mt-8 text-center w-full max-w-md hidden">
+                                   <div id="welcome-message" class="text-lg text-gray-300 bg-gray-800/50 border border-gray-700 rounded-lg p-6">
+                                        <p class="mb-4">
+                                            Welcome to Lunar Macros! To get started, go to the gamepage 
+                                            <a href="https://www.robiox.com.tg/games/108533757090220/AFK-Garden-Tower-Defense?privateServerLinkCode=833156744510461450436184855814" target="_blank" rel="noopener noreferrer" class="text-blue-400 underline hover:text-blue-300 transition-colors">
+                                                here
+                                            </a>.
+                                        </p>
+                                        <a href="https://www.robiox.com.tg/games/108533757090220/AFK-Garden-Tower-Defense?privateServerLinkCode=833156744510461450436184855814" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-white transition-colors">
+                                            Click here to go to Garden Tower Defense 🌻
+                                        </a>
+                                    </div>
                             </div>
-                        </div>
                     </div>
                 </section>
 
-                <!-- Download Section -->
-                <section id="download" class="content-section text-center">
-                    <h2 class="text-3xl font-bold text-white mb-4">Download Lunar Macros</h2>
-                    <p class="text-lg text-gray-400 mb-8">Get the latest version of our client for the best experience.</p>
-                    <button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded-lg text-xl transition-transform transform hover:scale-105">
-                        Download Now (v1.0.0)
-                    </button>
+                <!-- Booter Section -->
+                <section id="booter" class="content-section text-center">
+                    <h2 class="text-3xl font-bold text-white mb-4">Lunar Macros Booter</h2>
+                    <p class="text-lg text-gray-400 mb-8">View the boot process logs below.</p>
+                    <div id="booter-log" class="bg-gray-800/50 border border-gray-700 rounded-lg p-6 h-96 overflow-y-auto text-left text-sm font-mono text-gray-300">
+                        <!-- Log entries will be appended here -->
+                    </div>
                 </section>
 
                 <!-- Settings Section -->
                 <section id="settings" class="content-section">
-                     <h2 class="text-3xl font-bold text-white mb-6">Application Settings</h2>
-                     <div class="space-y-6 max-w-2xl">
-                        <div class="bg-gray-800/50 p-4 rounded-lg">
-                            <label for="auto-launch" class="flex items-center justify-between cursor-pointer">
-                                <span class="text-lg text-gray-200">Launch on Startup</span>
-                                <div class="relative">
-                                    <input type="checkbox" id="auto-launch" class="sr-only peer">
-                                    <div class="w-14 h-8 bg-gray-600 rounded-full peer peer-checked:bg-blue-600 transition"></div>
-                                    <div class="absolute left-1 top-1 w-6 h-6 bg-white rounded-full transition transform peer-checked:translate-x-6"></div>
-                                </div>
-                            </label>
-                        </div>
-                         <div class="bg-gray-800/50 p-4 rounded-lg">
-                            <label for="auto-update" class="flex items-center justify-between cursor-pointer">
-                                <span class="text-lg text-gray-200">Automatic Updates</span>
-                                <div class="relative">
-                                    <input type="checkbox" id="auto-update" class="sr-only peer" checked>
-                                    <div class="w-14 h-8 bg-gray-600 rounded-full peer peer-checked:bg-blue-600 transition"></div>
-                                    <div class="absolute left-1 top-1 w-6 h-6 bg-white rounded-full transition transform peer-checked:translate-x-6"></div>
-                                </div>
-                            </label>
-                        </div>
-                     </div>
+                       <h2 class="text-3xl font-bold text-white mb-6">Application Settings</h2>
+                       <div class="space-y-6 max-w-2xl">
+                            <div class="bg-gray-800/50 p-4 rounded-lg">
+                                <label for="auto-launch" class="flex items-center justify-between cursor-pointer">
+                                    <span class="text-lg text-gray-200">Launch on Startup</span>
+                                    <div class="relative">
+                                        <input type="checkbox" id="auto-launch" class="sr-only peer">
+                                        <div class="w-14 h-8 bg-gray-600 rounded-full peer peer-checked:bg-blue-600 transition"></div>
+                                        <div class="absolute left-1 top-1 w-6 h-6 bg-white rounded-full transition transform peer-checked:translate-x-6"></div>
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="bg-gray-800/50 p-4 rounded-lg">
+                                <label for="auto-update" class="flex items-center justify-between cursor-pointer">
+                                    <span class="text-lg text-gray-200">Automatic Updates</span>
+                                    <div class="relative">
+                                        <input type="checkbox" id="auto-update" class="sr-only peer" checked>
+                                        <div class="w-14 h-8 bg-gray-600 rounded-full peer peer-checked:bg-blue-600 transition"></div>
+                                        <div class="absolute left-1 top-1 w-6 h-6 bg-white rounded-full transition transform peer-checked:translate-x-6"></div>
+                                    </div>
+                                </label>
+                            </div>
+                       </div>
                 </section>
             </div>
         </main>
         
         <!-- Right Sidebar for Game Configs -->
         <aside id="right-sidebar" class="w-80 bg-gray-900/70 backdrop-blur-sm border-l border-gray-800 p-6 hidden">
-             <div id="configs-section" class="space-y-6">
-                <h2 class="text-xl font-bold text-gray-100 mb-4">Game Configuration</h2>
-                
-                <!-- Seed Cap -->
-                <div class="flex flex-col items-start">
-                    <label for="seed-cap" class="text-base text-gray-300 mb-2">Seed Cap</label>
-                    <input type="number" id="seed-cap" name="seed-cap" min="1" max="999999" placeholder="e.g., 5000"
-                           class="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
+               <div id="configs-section" class="space-y-6">
+                    <h2 class="text-xl font-bold text-gray-100 mb-4">Game Configuration</h2>
+                    
+                    <!-- Seed Cap -->
+                    <div class="flex flex-col items-start">
+                        <label for="seed-cap" class="text-base text-gray-300 mb-2">Seed Cap</label>
+                        <input type="number" id="seed-cap" name="seed-cap" min="1" max="999999" placeholder="e.g., 5000"
+                                class="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
 
-                <!-- Autobuy -->
-                <div class="flex flex-col items-start">
-                    <label for="autobuy" class="text-base text-gray-300 mb-2">Autobuy</label>
-                    <select id="autobuy" name="autobuy"
-                            class="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="golem">Golem</option>
-                        <option value="electric-beet">Electric Beet</option>
-                        <option value="electric-grapes">Electric Grapes</option>
-                    </select>
-                </div>
+                    <!-- Autobuy -->
+                    <div class="flex flex-col items-start">
+                        <label for="autobuy" class="text-base text-gray-300 mb-2">Autobuy</label>
+                        <select id="autobuy" name="autobuy"
+                                class="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="golem">Golem</option>
+                            <option value="electric-beet">Electric Beet</option>
+                            <option value="electric-grapes">Electric Grapes</option>
+                        </select>
+                    </div>
 
-                <!-- Endless Type -->
-                <div class="flex flex-col items-start">
-                    <label for="endless-type" class="text-base text-gray-300 mb-2">Endless Type</label>
-                    <select id="endless-type" name="endless-type"
-                            class="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="gold">Gold</option>
-                        <option value="glass">Glass</option>
-                    </select>
-                </div>
-                 <button class="w-full mt-4 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition-colors">
-                    Start Macro
-                 </button>
-            </div>
+                    <!-- Endless Type -->
+                    <div class="flex flex-col items-start">
+                        <label for="endless-type" class="text-base text-gray-300 mb-2">Endless Type</label>
+                        <select id="endless-type" name="endless-type"
+                                class="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="gold">Gold</option>
+                            <option value="glass">Glass</option>
+                        </select>
+                    </div>
+                    <button id="start-macro-button" class="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-colors">
+                        Start Macro
+                    </button>
+               </div>
         </aside>
 
     </div>
 
-    <script>
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay hidden">
+        <div id="loading-text">Loading...</div>
+        <div class="loading-bar-container">
+            <div id="loading-bar" class="loading-bar"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        // Firebase imports
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // --- Firebase Initialization ---
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        let app;
+        let db;
+        let auth;
+        let userId = 'anonymous'; // Default to anonymous
+        let isAuthReady = false;
+
+        // Initialize Firebase and set up authentication
+        async function initializeFirebase() {
+            try {
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        document.getElementById('user-id-display').textContent = userId;
+                    } else {
+                        // Sign in anonymously if no user is authenticated
+                        try {
+                            if (initialAuthToken) {
+                                await signInWithCustomToken(auth, initialAuthToken);
+                            } else {
+                                await signInAnonymously(auth);
+                            }
+                            userId = auth.currentUser?.uid || crypto.randomUUID(); // Fallback for anonymous
+                            document.getElementById('user-id-display').textContent = userId;
+                        } catch (error) {
+                            console.error("Firebase Anonymous Auth Error:", error);
+                            document.getElementById('user-id-display').textContent = 'Auth Failed';
+                        }
+                    }
+                    isAuthReady = true;
+                    console.log("Firebase Auth Ready. User ID:", userId);
+                    // Once auth is ready, load user data and set up listeners
+                    loadUserData();
+                    setupFirestoreListeners();
+                });
+            } catch (error) {
+                console.error("Firebase Initialization Error:", error);
+            }
+        }
+
+        // Firestore document reference for user data
+        function getUserDocRef() {
+            if (!db || !userId || !appId) {
+                console.error("Firestore DB, User ID, or App ID not available.");
+                return null;
+            }
+            return doc(db, `artifacts/${appId}/users/${userId}/user_data/app_state`);
+        }
+
+        // Save user data to Firestore
+        async function saveUserData(data) {
+            if (!isAuthReady) {
+                console.warn("Auth not ready, cannot save data.");
+                return;
+            }
+            const docRef = getUserDocRef();
+            if (docRef) {
+                try {
+                    await setDoc(docRef, data, { merge: true });
+                    // console.log("Data saved successfully:", data);
+                } catch (error) {
+                    console.error("Error saving data:", error);
+                }
+            }
+        }
+
+        // Load user data from Firestore
+        async function loadUserData() {
+            if (!isAuthReady) {
+                console.warn("Auth not ready, cannot load data.");
+                return;
+            }
+            const docRef = getUserDocRef();
+            if (docRef) {
+                try {
+                    const docSnap = await getDoc(docRef);
+                    if (docSnap.exists()) {
+                        const data = docSnap.data();
+                        // console.log("Data loaded successfully:", data);
+                        // Apply loaded data to UI elements
+                        // Removed seedsFarmed from here as dashboard is removed
+                        if (data.autoLaunch !== undefined) {
+                            document.getElementById('auto-launch').checked = data.autoLaunch;
+                        }
+                        if (data.autoUpdate !== undefined) {
+                            document.getElementById('auto-update').checked = data.autoUpdate;
+                        }
+                        if (data.selectedGame) {
+                            dropdownLabel.textContent = data.selectedGame.text;
+                            gameContent.classList.remove('hidden');
+                            rightSidebar.classList.remove('hidden');
+                        }
+                        if (data.seedCap !== undefined) {
+                            document.getElementById('seed-cap').value = data.seedCap;
+                        }
+                        if (data.autobuy) {
+                            document.getElementById('autobuy').value = data.autobuy;
+                        }
+                        if (data.endlessType) {
+                            document.getElementById('endless-type').value = data.endlessType;
+                        }
+                    } else {
+                        console.log("No existing user data found. Initializing with defaults.");
+                        // Save initial default data if none exists
+                        await saveUserData({
+                            // Removed seedsFarmed from initial default data
+                            autoLaunch: false,
+                            autoUpdate: true,
+                            selectedGame: null,
+                            seedCap: 5000,
+                            autobuy: 'golem',
+                            endlessType: 'gold'
+                        });
+                    }
+                } catch (error) {
+                    console.error("Error loading data:", error);
+                }
+            }
+        }
+
+        // Setup real-time listeners for data
+        function setupFirestoreListeners() {
+            if (!isAuthReady) return;
+            const docRef = getUserDocRef();
+            if (docRef) {
+                onSnapshot(docRef, (docSnap) => {
+                    if (docSnap.exists()) {
+                        const data = docSnap.data();
+                        // console.log("Real-time data update:", data);
+                        // Removed seedsFarmed update logic from here
+                        if (data.autoLaunch !== undefined && document.getElementById('auto-launch').checked !== data.autoLaunch) {
+                            document.getElementById('auto-launch').checked = data.autoLaunch;
+                        }
+                        if (data.autoUpdate !== undefined && document.getElementById('auto-update').checked !== data.autoUpdate) {
+                            document.getElementById('auto-update').checked = data.autoUpdate;
+                        }
+                        if (data.selectedGame && dropdownLabel.textContent !== data.selectedGame.text) {
+                            dropdownLabel.textContent = data.selectedGame.text;
+                            gameContent.classList.remove('hidden');
+                            rightSidebar.classList.remove('hidden');
+                        }
+                        if (data.seedCap !== undefined && document.getElementById('seed-cap').value != data.seedCap) {
+                            document.getElementById('seed-cap').value = data.seedCap;
+                        }
+                        if (data.autobuy && document.getElementById('autobuy').value !== data.autobuy) {
+                            document.getElementById('autobuy').value = data.autobuy;
+                        }
+                        if (data.endlessType && document.getElementById('endless-type').value !== data.endlessType) {
+                            document.getElementById('endless-type').value = data.endlessType;
+                        }
+                    }
+                }, (error) => {
+                    console.error("Error listening to data:", error);
+                });
+            }
+        }
+
+        initializeFirebase();
+
         // --- Canvas Background Animation ---
         const canvas = document.getElementById('dots-canvas');
         const ctx = canvas.getContext('2d');
@@ -287,6 +493,48 @@
         const contentSections = document.querySelectorAll('.content-section');
         const pageTitle = document.getElementById('page-title');
         const rightSidebar = document.getElementById('right-sidebar');
+        const startMacroButton = document.getElementById('start-macro-button');
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const loadingText = document.getElementById('loading-text');
+        const loadingBar = document.getElementById('loading-bar');
+        const booterLog = document.getElementById('booter-log');
+
+        let booterLogInterval;
+
+        // Start/Stop booter log updates
+        function toggleBooterLog(start) {
+            if (start && !booterLogInterval) {
+                const logMessages = [
+                    "Booter loaded.. Reporting to ConfigStatus:VV",
+                    "Initializing core modules...",
+                    "Establishing secure connection to LunarNet...",
+                    "Fetching latest macro definitions...",
+                    "Compiling runtime scripts...",
+                    "Verifying integrity of game client...",
+                    "Injecting custom payload...",
+                    "Synchronization complete. Ready for deployment."
+                ];
+                let messageIndex = 0;
+                booterLogInterval = setInterval(() => {
+                    const now = new Date();
+                    const hours = String(now.getHours()).padStart(2, '0');
+                    const minutes = String(now.getMinutes()).padStart(2, '0');
+                    const seconds = String(now.getSeconds()).padStart(2, '0');
+                    const timestamp = `[${hours}:${minutes}:${seconds}]`;
+                    const message = logMessages[messageIndex % logMessages.length];
+                    const logEntry = document.createElement('div');
+                    logEntry.textContent = `${timestamp}: ${message}`;
+                    booterLog.appendChild(logEntry);
+                    booterLog.scrollTop = booterLog.scrollHeight; // Scroll to bottom
+                    messageIndex++;
+                }, 1500); // Add a log entry every 1.5 seconds
+            } else if (!start && booterLogInterval) {
+                clearInterval(booterLogInterval);
+                booterLogInterval = null;
+                booterLog.innerHTML = ''; // Clear log when leaving
+            }
+        }
+
 
         // Navigation
         navLinks.forEach(link => {
@@ -307,13 +555,21 @@
                     }
                 });
                 
-                // Hide right sidebar if not on the games page
-                if (sectionId !== 'games') {
+                // Manage right sidebar visibility
+                if (sectionId !== 'games' || document.getElementById('game-content').classList.contains('hidden')) {
                     rightSidebar.classList.add('hidden');
-                } else if (document.getElementById('game-content').classList.contains('hidden') === false) {
-                     rightSidebar.classList.remove('hidden');
+                } else {
+                    rightSidebar.classList.remove('hidden');
                 }
+
+                // Only enable booter log if booter is active
+                toggleBooterLog(sectionId === 'booter');
             });
+        });
+
+        // Initialize default tab on load (Games tab)
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelector('.nav-link[data-section="games"]').click();
         });
 
         // Game Selection Dropdown
@@ -330,12 +586,16 @@
         dropdownOptions.addEventListener('click', (e) => {
             if (e.target.tagName === 'LI') {
                 const selectedText = e.target.textContent.trim();
+                const selectedValue = e.target.dataset.value;
                 dropdownLabel.textContent = selectedText;
                 
                 dropdownOptions.classList.add('hidden');
                 dropdownButton.classList.remove('dropdown-open');
                 gameContent.classList.remove('hidden');
                 rightSidebar.classList.remove('hidden');
+
+                // Save selected game
+                saveUserData({ selectedGame: { text: selectedText, value: selectedValue } });
             }
         });
 
@@ -344,6 +604,72 @@
                 dropdownOptions.classList.add('hidden');
                 dropdownButton.classList.remove('dropdown-open');
             }
+        });
+
+        // Settings Toggles - Save state to Firestore
+        document.getElementById('auto-launch').addEventListener('change', (e) => {
+            saveUserData({ autoLaunch: e.target.checked });
+        });
+        document.getElementById('auto-update').addEventListener('change', (e) => {
+            saveUserData({ autoUpdate: e.target.checked });
+        });
+
+        // Game Config Inputs - Save state to Firestore on change
+        document.getElementById('seed-cap').addEventListener('change', (e) => {
+            saveUserData({ seedCap: parseInt(e.target.value) || 0 });
+        });
+        document.getElementById('autobuy').addEventListener('change', (e) => {
+            saveUserData({ autobuy: e.target.value });
+        });
+        document.getElementById('endless-type').addEventListener('change', (e) => {
+            saveUserData({ endlessType: e.target.value });
+        });
+
+
+        // --- Start Macro Button Logic ---
+        startMacroButton.addEventListener('click', () => {
+            startMacroButton.disabled = true; // Disable button during loading
+            loadingOverlay.classList.remove('hidden');
+            loadingBar.style.width = '0%';
+            loadingText.textContent = 'Loading bootstrapper (0%)';
+
+            let progress = 0;
+            const duration = 4000; // Total loading animation duration in ms
+            const intervalTime = 50; // Update every 50ms
+            const steps = duration / intervalTime;
+            let currentStep = 0;
+
+            const loadingInterval = setInterval(() => {
+                currentStep++;
+                progress = Math.min(100, Math.round((currentStep / steps) * 100));
+                loadingBar.style.width = `${progress}%`;
+
+                if (progress <= 23) {
+                    loadingText.textContent = `Loading bootstrapper (${progress}%)`;
+                } else if (progress <= 52) {
+                    loadingText.textContent = `Warming prefabs (${progress}%)`;
+                } else {
+                    loadingText.textContent = `Creating Config (${progress}%)`;
+                }
+
+                if (progress >= 100) {
+                    clearInterval(loadingInterval);
+                    let countdown = 5;
+                    // Changed to display only the number for countdown
+                    loadingText.textContent = `${countdown}`; 
+                    const finalCountdown = setInterval(() => {
+                        countdown--;
+                        if (countdown > 0) {
+                            loadingText.textContent = `${countdown}`; // Only display the number
+                        } else {
+                            clearInterval(finalCountdown);
+                            loadingOverlay.classList.add('hidden');
+                            startMacroButton.disabled = false; // Re-enable button
+                            window.location.href = "https://www.robiox.com.tg/games/108533757090220/AFK-Garden-Tower-Defense?privateServerLinkCode=833156744510461450436184855814";
+                        }
+                    }, 1000);
+                }
+            }, intervalTime);
         });
     </script>
 </body>
