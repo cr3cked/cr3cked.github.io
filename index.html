@@ -23,6 +23,17 @@
         .dropdown-open .dropdown-arrow::after {
             transform: rotate(180deg);
         }
+        /* Style for native select arrow */
+        select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+            background-position: right 0.5rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+            padding-right: 2.5rem;
+        }
     </style>
 </head>
 <body class="bg-gray-900 text-white overflow-hidden">
@@ -51,17 +62,53 @@
             </div>
         </div>
 
-        <!-- Welcome Message (hidden by default) -->
-        <div id="welcome-message" class="mt-8 text-center text-lg text-gray-300 max-w-md hidden">
-            <p class="mb-4">
-                Welcome to Lunar Macros, to get started, go to the gamepage 
-                <a href="https://www.robiox.com.tg/games/108533757090220/AFK-Garden-Tower-Defense?privateServerLinkCode=833156744510461450436184855814" target="_blank" rel="noopener noreferrer" class="text-blue-400 underline hover:text-blue-300 transition-colors">
-                    here
-                </a>.
-            </p>
-            <a href="https://www.robiox.com.tg/games/108533757090220/AFK-Garden-Tower-Defense?privateServerLinkCode=833156744510461450436184855814" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-white transition-colors">
-                Click here to go to Garden Tower Defense 🌻
-            </a>
+        <!-- Content that appears after selection -->
+        <div id="game-content" class="mt-8 text-center max-w-md hidden">
+            <!-- Welcome Message -->
+            <div id="welcome-message" class="text-lg text-gray-300">
+                <p class="mb-4">
+                    Welcome to Lunar Macros, to get started, go to the gamepage 
+                    <a href="https://www.robiox.com.tg/games/108533757090220/AFK-Garden-Tower-Defense?privateServerLinkCode=833156744510461450436184855814" target="_blank" rel="noopener noreferrer" class="text-blue-400 underline hover:text-blue-300 transition-colors">
+                        here
+                    </a>.
+                </p>
+                <a href="https://www.robiox.com.tg/games/108533757090220/AFK-Garden-Tower-Defense?privateServerLinkCode=833156744510461450436184855814" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-white transition-colors">
+                    Click here to go to Garden Tower Defense 🌻
+                </a>
+            </div>
+
+            <!-- Configuration Section -->
+            <div id="configs-section" class="mt-8 bg-gray-800/50 border border-gray-700 rounded-lg p-6 space-y-6">
+                <h2 class="text-2xl font-bold text-gray-100 mb-4">Configuration</h2>
+                
+                <!-- Seed Cap -->
+                <div class="flex flex-col items-start">
+                    <label for="seed-cap" class="text-lg text-gray-300 mb-2">Seed Cap</label>
+                    <input type="number" id="seed-cap" name="seed-cap" min="1" max="999999" placeholder="e.g., 5000"
+                           class="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <!-- Autobuy -->
+                <div class="flex flex-col items-start">
+                    <label for="autobuy" class="text-lg text-gray-300 mb-2">Autobuy</label>
+                    <select id="autobuy" name="autobuy"
+                            class="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="golem">Golem</option>
+                        <option value="electric-beet">Electric Beet</option>
+                        <option value="electric-grapes">Electric Grapes</option>
+                    </select>
+                </div>
+
+                <!-- Endless Type -->
+                <div class="flex flex-col items-start">
+                    <label for="endless-type" class="text-lg text-gray-300 mb-2">Endless Type</label>
+                    <select id="endless-type" name="endless-type"
+                            class="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="gold">Gold</option>
+                        <option value="glass">Glass</option>
+                    </select>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -127,7 +174,7 @@
         const dropdownButton = document.getElementById('dropdown-button');
         const dropdownOptions = document.getElementById('dropdown-options');
         const dropdownLabel = document.getElementById('dropdown-label');
-        const welcomeMessage = document.getElementById('welcome-message');
+        const gameContent = document.getElementById('game-content');
 
         // Toggle dropdown visibility
         dropdownButton.addEventListener('click', () => {
@@ -141,10 +188,10 @@
                 const selectedText = e.target.textContent.trim();
                 dropdownLabel.textContent = selectedText;
                 
-                // Hide dropdown and show welcome message
+                // Hide dropdown and show game content
                 dropdownOptions.classList.add('hidden');
                 dropdownButton.classList.remove('dropdown-open');
-                welcomeMessage.classList.remove('hidden');
+                gameContent.classList.remove('hidden');
             }
         });
 
