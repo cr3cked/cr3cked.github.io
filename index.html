@@ -1,148 +1,217 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lunar Macros Referral</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter font from Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         body {
-            background-color: #121212;
-            color: #ffffff;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            text-align: center;
+            font-family: 'Inter', sans-serif;
+            background-color: #1a202c; /* Dark background */
+            color: #e2e8f0; /* Light text */
+            overflow: hidden; /* Prevent scrollbars from star movement */
+        }
+        #star-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1; /* Behind other content */
         }
         .container {
-            background-color: #1e1e1e;
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 0 20px rgba(0, 255, 255, 0.1);
-            width: 90%;
-            max-width: 400px;
-        }
-        h1 {
-            color: #00ffff;
-            margin-bottom: 20px;
-        }
-        label {
-            display: block;
-            margin-bottom: 10px;
-            font-size: 1.1em;
-        }
-        #referralCode {
-            width: calc(100% - 22px);
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #00ffff;
-            background-color: #2a2a2a;
-            color: #ffffff;
-            font-size: 1em;
-            margin-bottom: 20px;
-        }
-        #submitCode {
-            background-color: #00ffff;
-            color: #121212;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1.1em;
-            font-weight: bold;
-            transition: background-color 0.3s, box-shadow 0.3s;
-        }
-        #submitCode:hover {
-            background-color: #00cccc;
-            box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
-        }
-        #errorMessage {
-            color: #ff4d4d;
-            margin-top: 15px;
-            height: 20px;
-            visibility: hidden;
-        }
-        #joinPrompt {
-            display: none;
-        }
-        .game-info {
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            background-color: #2a2a2a;
-            padding: 20px;
-            border-radius: 10px;
-            margin-top: 20px;
-            border: 1px solid #00ffff;
+            padding: 1rem;
+            position: relative;
+            z-index: 1; /* Above canvas */
         }
-        .game-title {
-            font-size: 1.4em;
-            font-weight: bold;
-            margin-right: 20px;
+        .text-scaled {
+            font-size: 1.5rem; /* Default for mobile */
         }
-        .controller-logo {
-            font-size: 2.5em;
+        @media (min-width: 640px) { /* sm */
+            .text-scaled {
+                font-size: 2rem;
+            }
         }
-        #yesButton {
-            display: inline-block;
-            background-color: #4CAF50; /* Green */
-            color: white;
-            padding: 15px 35px;
-            text-decoration: none;
-            font-size: 1.2em;
-            font-weight: bold;
-            border-radius: 5px;
-            margin-top: 30px;
-            transition: background-color 0.3s, transform 0.3s;
+        @media (min-width: 768px) { /* md */
+            .text-scaled {
+                font-size: 2.5rem;
+            }
         }
-        #yesButton:hover {
-            background-color: #45a049;
-            transform: scale(1.05);
+        @media (min-width: 1024px) { /* lg */
+            .text-scaled {
+                font-size: 3rem;
+            }
+        }
+        /* Custom glow effect for the close button */
+        #closeButton:hover {
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
         }
     </style>
 </head>
-<body>
+<body class="antialiased">
+    <!-- Star Canvas -->
+    <canvas id="star-canvas"></canvas>
 
     <div class="container">
-        <h1>Lunar Macros Referral</h1>
+        <div id="referral-section" class="bg-gray-800 bg-opacity-90 p-6 rounded-xl shadow-2xl max-w-sm w-full text-center border border-gray-700">
+            <h1 id="mainTitle" class="text-scaled font-bold mb-6 text-blue-400">Lunar Macros Referral</h1>
 
-        <div id="referralSection">
-            <label for="referralCode">Enter Referral Code</label>
-            <input type="text" id="referralCode" name="referralCode" placeholder="Enter code here...">
-            <button id="submitCode">Submit</button>
-            <p id="errorMessage">Invalid Code. Please try again.</p>
-        </div>
-
-        <div id="joinPrompt">
-            <h2>Do you want to join this user on ROBLOX?</h2>
-            <div class="game-info">
-                <span class="game-title">[☀️] Garden Tower Defense 🌻</span>
-                <span class="controller-logo">🎮</span>
+            <!-- Initial Code Input Form -->
+            <div id="code-input-form">
+                <p class="text-lg mb-4">Please enter your referral code:</p>
+                <input type="text" id="referralCode" placeholder="Enter code here"
+                       class="w-full p-3 mb-4 rounded-lg bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 border border-gray-600">
+                <button id="submitCode"
+                        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300 ease-in-out transform hover:scale-105 shadow-lg">
+                    Submit Code
+                </button>
+                <p id="errorMessage" class="text-red-400 mt-3 hidden">Incorrect code. Please try again.</p>
             </div>
-            <a href="https://www.robiox.com.tg/games/108533757090220/Garden-Tower-Defense?privateServerLinkCode=833156744510461450436184855814" id="yesButton">Yes</a>
+
+            <!-- Referral Menu (Hidden by default) -->
+            <div id="referral-menu" class="hidden">
+                <p class="text-lg mb-4">Do you want to join this user on ROBLOX?</p>
+
+                <!-- New Game Info Box Layout -->
+                <div class="bg-gray-700 bg-opacity-70 p-3 rounded-xl mb-6 border border-gray-600 relative overflow-hidden">
+                    <!-- Close Button (X) -->
+                    <button id="closeButton" class="absolute top-2 right-2 text-white text-xl font-bold p-1 rounded-full hover:text-red-500 transition-colors duration-200">
+                        &times;
+                    </button>
+
+                    <div class="flex items-start gap-3">
+                        <!-- Game Thumbnail -->
+                        <img src="https://tr.rbxcdn.com/180DAY-60816fb9271c35afa800ebae0cadc317/500/280/Image/Jpeg/noFilter"
+                             alt="Garden Tower Defense Thumbnail" class="w-20 h-auto rounded-lg shadow-md flex-shrink-0">
+
+                        <div class="flex-grow text-left">
+                            <!-- Game Title -->
+                            <h2 class="text-lg font-bold text-purple-300 mb-1">Garden Tower Defense</h2>
+
+                            <!-- User Info -->
+                            <div class="flex items-center gap-1">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png"
+                                     alt="User Icon" class="w-5 h-5 rounded-full">
+                                <span class="text-gray-300 text-xs">jaymp3</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- "Bring me" button (Yes button) -->
+                    <div class="flex justify-end mt-3">
+                        <button id="yesButton"
+                                class="text-blue-400 hover:text-blue-300 font-bold py-1 px-3 rounded-lg transition duration-300 ease-in-out transform hover:scale-105">
+                            Bring me
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        document.getElementById('submitCode').addEventListener('click', function() {
-            const referralCodeInput = document.getElementById('referralCode');
-            const errorMessage = document.getElementById('errorMessage');
-            const referralSection = document.getElementById('referralSection');
-            const joinPrompt = document.getElementById('joinPrompt');
+        // Star Animation Logic
+        const canvas = document.getElementById('star-canvas');
+        const ctx = canvas.getContext('2d');
+        let stars = [];
+        const numStars = 200; // Number of stars
 
-            if (referralCodeInput.value.trim().toLowerCase() === 'mp3jay') {
-                referralSection.style.display = 'none';
-                joinPrompt.style.display = 'block';
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            // Reinitialize stars on resize to distribute them correctly
+            initStars();
+        }
+
+        function initStars() {
+            stars = []; // Clear existing stars
+            for (let i = 0; i < numStars; i++) {
+                stars.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    radius: Math.random() * 1.5 + 0.5, // Small stars
+                    vx: (Math.random() - 0.5) * 0.2, // Very slow horizontal movement
+                    vy: (Math.random() - 0.5) * 0.2, // Very slow vertical movement
+                    alpha: Math.random() * 0.5 + 0.5 // Varying transparency
+                });
+            }
+        }
+
+        function animateStars() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
+
+            for (let i = 0; i < numStars; i++) {
+                const star = stars[i];
+
+                // Update position
+                star.x += star.vx;
+                star.y += star.vy;
+
+                // Wrap around if out of bounds
+                if (star.x < 0) star.x = canvas.width;
+                if (star.x > canvas.width) star.x = 0;
+                if (star.y < 0) star.y = canvas.height;
+                if (star.y > canvas.height) star.y = 0;
+
+                // Draw star
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2, false);
+                ctx.fillStyle = `rgba(255, 255, 255, ${star.alpha})`;
+                ctx.fill();
+            }
+            requestAnimationFrame(animateStars); // Loop animation
+        }
+
+        // Initialize and start star animation
+        window.addEventListener('load', () => {
+            resizeCanvas(); // Set initial canvas size
+            animateStars(); // Start the animation loop
+        });
+        window.addEventListener('resize', resizeCanvas); // Handle canvas resize
+
+        // Referral Logic
+        const referralCodeInput = document.getElementById('referralCode');
+        const submitCodeButton = document.getElementById('submitCode');
+        const errorMessage = document.getElementById('errorMessage');
+        const codeInputForm = document.getElementById('code-input-form');
+        const referralMenu = document.getElementById('referral-menu');
+        const yesButton = document.getElementById('yesButton');
+        const closeButton = document.getElementById('closeButton');
+        const mainTitle = document.getElementById('mainTitle'); // Get reference to the main title
+
+        const correctCode = "JayMP3"; // The correct referral code
+
+        submitCodeButton.addEventListener('click', () => {
+            const enteredCode = referralCodeInput.value.trim();
+            if (enteredCode.toLowerCase() === correctCode.toLowerCase()) {
+                // Correct code entered
+                codeInputForm.classList.add('hidden'); // Hide input form
+                referralMenu.classList.remove('hidden'); // Show referral menu
+                errorMessage.classList.add('hidden'); // Hide any error message
+                mainTitle.textContent = "User Found"; // Change title to "User Found"
             } else {
-                errorMessage.style.visibility = 'visible';
-                referralCodeInput.style.borderColor = '#ff4d4d';
+                // Incorrect code
+                errorMessage.classList.remove('hidden'); // Show error message
             }
         });
-    </script>
 
+        yesButton.addEventListener('click', () => {
+            // Redirect to the Roblox game link
+            window.location.href = "https://www.robiox.com.tg/games/108533757090220/AFK-Garden-Tower-Defense?privateServerLinkCode=833156744510461450436184855814";
+        });
+
+        closeButton.addEventListener('click', () => {
+            // "Kick you off the site" - redirect to a blank page
+            window.location.href = "about:blank";
+        });
+    </script>
 </body>
 </html>
-```
